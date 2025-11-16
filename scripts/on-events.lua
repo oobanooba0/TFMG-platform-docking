@@ -12,13 +12,17 @@ end
 local build_event_filter = {--what entities the on build events should check for.
   {
   	filter = "name",
-  	name = "docking-port",
+  	name = "TFMG-docking-port",
   	mode = "or"
   },
   {
   	filter = "name",
-  	name = "docking-belt",
+  	name = "TFMG-docking-belt",
   	mode = "or"
+  },
+  {
+    filter = "transport-belt-connectable",
+    mode = "or"
   },
 }
 
@@ -60,10 +64,28 @@ script.on_event(
     docking.handle_build_event(event)
   end,build_event_filter
 )
-
 script.on_event(
 	defines.events.on_object_destroyed,
 	function(event)
 		docking.handle_destroy_event(event)
 	end
+)
+script.on_event(
+  defines.events.on_player_rotated_entity,
+  function(event)
+    docking.handle_rotate_event(event)
+  end
+)
+script.on_event(
+  defines.events.on_player_flipped_entity,
+  function(event)
+    docking.handle_rotate_event(event)
+  end
+)
+--on tick
+script.on_event(
+  defines.events.on_tick,--Its HaNlDeR sHoUldNt InCluDe PeRfOrMaNce HeAvY CoDe. You cant tell me what to do.
+  function(event)
+    docking.on_tick(event)
+  end
 )

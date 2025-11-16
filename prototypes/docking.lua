@@ -18,26 +18,26 @@ local basic_belt_animation_set =
 }
 --docking port
   local docking_port = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
-  docking_port.name = "docking-port"
-  docking_port.minable = {mining_time = 0.1, result = "docking-port"},
+  docking_port.name = "TFMG-docking-port"
+  docking_port.minable = {mining_time = 0.1, result = "TFMG-docking-port"}
 data:extend({
     docking_port,--docking port entity
     {--docking port item
     type = "item",
-    name = "docking-port",
+    name = "TFMG-docking-port",
     icon = "__base__/graphics/icons/wooden-chest.png",
     subgroup = "space-related",
     order = "k-a",
     inventory_move_sound = item_sounds.wood_inventory_move,
     pick_sound = item_sounds.wood_inventory_pickup,
     drop_sound = item_sounds.wood_inventory_move,
-    place_result = "docking-port",
+    place_result = "TFMG-docking-port",
     stack_size = 50,
     hidden = false,
   },
   {--docking belt item
     type = "item",
-    name = "docking-belt",
+    name = "TFMG-docking-belt",
     icon = "__base__/graphics/icons/linked-belt.png",
     hidden = false,
     subgroup = "space-related",
@@ -45,16 +45,16 @@ data:extend({
     inventory_move_sound = item_sounds.mechanical_inventory_move,
     pick_sound = item_sounds.mechanical_inventory_pickup,
     drop_sound = item_sounds.mechanical_inventory_move,
-    place_result = "docking-belt",
+    place_result = "TFMG-docking-belt",
     stack_size = 50
   },
   {--docking belt
     type = "linked-belt",
-    name = "docking-belt",
+    name = "TFMG-docking-belt",
     icon = "__base__/graphics/icons/linked-belt.png",
     flags = {"placeable-neutral", "player-creation"},
     hidden = true,
-    minable = {mining_time = 0.1, result = "docking-belt"},
+    minable = {mining_time = 0.1, result = "TFMG-docking-belt"},
     max_health = 160,
     corpse = "underground-belt-remnants",
     dying_explosion = "underground-belt-explosion",
@@ -122,9 +122,6 @@ data:extend({
       back_patch = data.raw["underground-belt"]["underground-belt"].structure.back_patch,
       front_patch = data.raw["underground-belt"]["underground-belt"].structure.front_patch,
     },
-    -- clone/blueprint connection work only if both input and output have them and they are contained in the same blueprint/clone
-    allow_clone_connection = true,
-    allow_blueprint_connection = true,
     allow_side_loading = false
   },
 })

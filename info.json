@@ -6,7 +6,8 @@
   "factorio_version": "2.0",
   "dependencies": [
     "base >= 2.0.72",
-    "space-age >= 2.0.72"
+    "space-age >= 2.0.72",
+    "flib >= 0.16.3"
   ],
   "space_travel_required": true,
   "description": "Inter-platform logistics with belts. Instaid of teleporting items between platforms, platforms must be docked and items moved through belts."
