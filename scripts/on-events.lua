@@ -15,6 +15,11 @@ local build_event_filter = {--what entities the on build events should check for
   	name = "docking-port",
   	mode = "or"
   },
+  {
+  	filter = "name",
+  	name = "docking-belt",
+  	mode = "or"
+  },
 }
 
 

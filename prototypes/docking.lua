@@ -2,9 +2,24 @@
 local item_sounds = require("__base__.prototypes.item_sounds")
 local sounds = require("__base__.prototypes.entity.sounds")
 local hit_effects = require("__base__.prototypes.entity.hit-effects")
+--belt animation set
+
+local basic_belt_animation_set =
+{
+  animation_set =
+  {
+    filename = "__base__/graphics/entity/transport-belt/transport-belt.png",
+    priority = "extra-high",
+    size = 128,
+    scale = 0.5,
+    frame_count = 16,
+    direction_count = 20
+  },
+}
 --docking port
   local docking_port = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
   docking_port.name = "docking-port"
+  docking_port.minable = {mining_time = 0.1, result = "docking-port"},
 data:extend({
     docking_port,--docking port entity
     {--docking port item
@@ -104,7 +119,7 @@ data:extend({
           scale = 0.5
         }
       },
-      back_patch = data.raw["underground-belt"]["underground-belt"].structure.back_patch,--this isnt working?
+      back_patch = data.raw["underground-belt"]["underground-belt"].structure.back_patch,
       front_patch = data.raw["underground-belt"]["underground-belt"].structure.front_patch,
     },
     -- clone/blueprint connection work only if both input and output have them and they are contained in the same blueprint/clone
