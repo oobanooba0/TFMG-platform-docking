@@ -5,7 +5,6 @@ local dock_parts_filter = {"TFMG-docking-port","TFMG-docking-belt"}
 local dock_belts_filter = {"TFMG-docking-belt"}
 local max_dock_size = 1000
 
-
 local offsets = {
   [defines.direction.north] = { x = 0, y = -1 },
   [defines.direction.east] = { x = 1, y = 0 },
@@ -19,7 +18,6 @@ local splitter_offsets = {
   [defines.direction.south] = { x = 0.5, y = 0 },
   [defines.direction.west] = { x = 0, y = -0.5 },
 }
-
 
 local opposite = {
   [defines.direction.north] = defines.direction.south,
@@ -39,8 +37,11 @@ local belt_types = {
 
 local docking = {}
 --docking belt manager
+
   local function snap_dock_belt_direction(docking_part)
-    if docking_part.linked_belt_neighbour then return docking_part.linked_belt_neighbour end
+    if docking_part.linked_belt_neighbour then 
+      docking_part.disconnect_linked_belts()
+    end
     local surface = docking_part.surface
     local direction = docking_part.direction
     if docking_part.linked_belt_type == "output" then direction = opposite[direction] end--flip direction when the belt is an output, because reasons
@@ -225,7 +226,7 @@ local docking = {}
   end
 
 
-  local function establish_link(id_1,id_2)
+  local function establish_link(id_1,id_2) --establish a link between two docking ports by id.
     local port_1 = storage.docking_ports[id_1]
     if not port_1 then return end
     local port_2 = storage.docking_ports[id_2]
@@ -234,24 +235,22 @@ local docking = {}
     for shift,alice in pairs(port_1.children.positive) do --link positive side
       if not alice.valid then return end
       local bob = port_2.children.positive[shift]
-      if not bob.valid then return end
       if not bob then break end
+      if not bob.valid then return end
       marriage(alice,bob)
     end
 
     for shift,alice in pairs(port_1.children.negative) do --link negative side
       if not alice.valid then return end
       local bob = port_2.children.negative[shift]
-      if not bob.valid then return end
       if not bob then break end
+      if not bob.valid then return end
       marriage(alice,bob)
     end
-
   end
 
 
 --callable functions
-
   function docking.handle_build_event(event)
     if event.entity.name == "TFMG-docking-port" then
       on_docking_port_created(event)
