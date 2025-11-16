@@ -16,10 +16,36 @@ local basic_belt_animation_set =
     direction_count = 20
   },
 }
+
+local connector_buildability_rules = {
+  {
+    area = {{-0.4, -0.4}, {0.4, 0.4}},
+    required_tiles = {layers = {ground_tile = true}},
+    colliding_tiles = {layers = {empty_space = true}},
+    remove_on_collision = true,
+  },
+  {
+    area = {{-1, -50}, {1, -0.6}},
+    required_tiles = {layers = {empty_space = true}},
+    remove_on_collision = true,
+  },
+}
+
+local place_visualisation = {
+    filename = "__core__/graphics/cursor-boxes-32x32.png",
+    priority = "extra-high-no-scale",
+    width = 64,
+    height = 64,
+    scale = 0.5,
+    x = 3*64
+  }
+
 --docking port
   local docking_port = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
   docking_port.name = "TFMG-docking-port"
   docking_port.minable = {mining_time = 0.1, result = "TFMG-docking-port"}
+  docking_port.tile_buildability_rules = connector_buildability_rules
+  docking_port.placeable_position_visualization = place_visualisation
 data:extend({
     docking_port,--docking port entity
     {--docking port item
@@ -64,6 +90,8 @@ data:extend({
     resistances = data.raw["underground-belt"]["underground-belt"].resistances,
     collision_box = {{-0.4, -0.4}, {0.4, 0.4}},
     selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
+    tile_buildability_rules = connector_buildability_rules,
+    placeable_position_visualization = place_visualisation,
     damaged_trigger_effect = hit_effects.entity(),
     animation_speed_coefficient = 32,
     belt_animation_set = basic_belt_animation_set,
