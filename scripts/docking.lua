@@ -54,7 +54,7 @@ local docking = {}
     elseif direction == opposite[belt_direction] then
       docking_part.linked_belt_type = "output"
     end
-    TFMG.block(docking_part)
+    --TFMG.block(docking_part)
   end
 
   local function find_dock_normal_belt(belt)
@@ -155,19 +155,32 @@ local docking = {}
     end
   end
 
+  local function seperate_children(dock_storage) --disconnect all the linked belts
+    if dock_storage.children then
+      for _,connector in pairs(dock_storage.children.positive) do
+        if connector.valid then connector.disconnect_linked_belts() end
+      end
+      for _,connector in pairs(dock_storage.children.negative) do
+        if connector.valid then connector.disconnect_linked_belts() end
+      end
+    end
+    dock_storage.children = {positive = {},negative = {}}
+  end
+
   local function make_children(dock)--this should update what linked belts are connected to the docking port
     local direction = dock.direction
     local position = dock.position
     local surface = dock.surface
     local dock_storage = storage.docking_ports[dock.unit_number]
     if not dock_storage then return end
-    dock_storage.children = {positive = {},negative = {}}
+    seperate_children(dock_storage)
+    
     if direction == 4 or direction == 12 then --we need to know what axis to check.
       iterate_children("y",position,surface,dock_storage)
     else
       iterate_children("x",position,surface,dock_storage)
     end
-    TFMG.block(storage.docking_ports[dock.unit_number])
+    --TFMG.block(storage.docking_ports[dock.unit_number])
   end
 
   local function find_parent(axis,position,surface)--find a docking port by iterating through adjacent dock entities.
@@ -249,6 +262,10 @@ local docking = {}
     end
   end
 
+  local function find_connectable(docking_storage)
+
+  end
+
 
 --callable functions
   function docking.handle_build_event(event)
@@ -260,6 +277,7 @@ local docking = {}
       find_dock_belt(event.entity)
     end
     --TFMG.block(event)
+    TFMG.block(storage.docks)
   end
 
   function docking.handle_rotate_event(event)
@@ -273,19 +291,12 @@ local docking = {}
   end
 
   function docking.on_tick(event)--we're gonna take the normal approch of checking a finite number of docking ports per tick
-    --for _, dock_storage in pairs(storage.docking_ports) do
-    --  
-    --end
-    local id_1 = next(storage.docking_ports,nil)
-    local id_2 = next(storage.docking_ports,id_1)
-    establish_link(id_1,id_2)
-
-
-    --storage.port_from_k = flib_table.for_n_of(
-    --  storage.docking_ports, storage.port_from_k, 1,
-    --  function(v)
-    --  end
-    --)
+    storage.port_from_k = flib_table.for_n_of(
+      storage.docking_ports, storage.port_from_k, 1,
+      function(v)
+        find_connectable(v)
+      end
+    )
   end
 
 return docking

@@ -1,11 +1,25 @@
 --local functions
 
 local function setup_storage()--make sure all important storage tables are ready.
-  if not storage.docking then --all storage related to docking will go in here
-    storage.docking = {}
-  end
   if not storage.docking_ports then
     storage.docking_ports = {} --this should contain a full list of all existing docking ports, and useful information about them.
+  end
+
+  if not storage.docks then --this will be the table containing all my dock ids as they move around and such
+    storage.docks = {}
+  end
+  --setup each directional dock table.
+  if not storage.docks.north then storage.docks.north = {} end
+  if not storage.docks.east then storage.docks.east = {} end
+  if not storage.docks.south then storage.docks.south = {} end
+  if not storage.docks.west then storage.docks.west = {} end
+
+  for direction, table in pairs(storage.docks) do --create a subtable for each space location in the game.
+    for _, location in pairs(prototypes.space_location) do
+      if not storage.docks[direction][location.name] then
+        storage.docks[direction][location.name] = {}
+      end
+    end
   end
 end
 
