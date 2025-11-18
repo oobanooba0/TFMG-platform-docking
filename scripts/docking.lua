@@ -19,12 +19,23 @@ local splitter_offsets = {
   [defines.direction.west] = { x = 0, y = -0.5 },
 }
 
-local opposite = {
+local opposite = {--just get me the opposite direction lmfao
   [defines.direction.north] = defines.direction.south,
   [defines.direction.east] = defines.direction.west,
   [defines.direction.south] = defines.direction.north,
   [defines.direction.west] = defines.direction.east,
+  ["north"] = "south",
+  ["east"] = "west",
+  ["south"] = "north",
+  ["west"] = "east",
 }
+
+local direction_str = {
+  [defines.direction.north] = "north",
+  [defines.direction.east] = "east",
+  [defines.direction.south] = "south",
+  [defines.direction.west] = "west",
+  }
 
 local belt_types = {
   "linked-belt",
@@ -231,12 +242,58 @@ local docking = {}
     snap_dock_belt_direction(connector)
   end
 
+
+--dock location management
+
+  local function register_dock_to_location(docking_port,space_location)
+    local location_name = space_location.name
+    --TFMG.block(location_name)
+    local direction = direction_str[docking_port.direction]
+    local port_id = docking_port.unit_number
+    --TFMG.block(storage.docks[direction][location_name])
+    storage.docks[direction][location_name][port_id] = docking_port
+    --store what space location the dock is in the docking_port storage, so we can find where to look when we want to unregister it
+
+    storage.docking_ports[port_id].location = location_name
+    TFMG.block(storage.docking_ports[port_id])
+  end
+
+  local function unregister_dock_from_last_location(docking_port,last_visited_space_location,space_location_name)
+    local location_name
+    if last_visited_space_location then 
+      location_name = last_visited_space_location.name
+    else
+      location_name = space_location_name
+    end
+    if not location_name then return end
+    local direction = direction_str[docking_port.direction]
+    TFMG.block(direction)
+    local port_id = docking_port.unit_number
+    storage.docks[direction][location_name][port_id] = nil
+    --use our stored location to
+
+
+    storage.docking_ports[port_id].location = nil
+  end
+
 -- link management
 
   local function marriage(alice,bob)--link a pair of entities ()
     if alice.linked_belt_type == bob.linked_belt_type then return end --we cant connect if theyre the same type
     alice.connect_linked_belts(bob)
   end
+
+  local function divorce(dock_storage)
+    if dock_storage.children then
+      for _,connector in pairs(dock_storage.children.positive) do
+        if connector.valid then connector.disconnect_linked_belts() end
+      end
+      for _,connector in pairs(dock_storage.children.negative) do
+        if connector.valid then connector.disconnect_linked_belts() end
+      end
+    end
+  end
+
 
 
   local function establish_link(id_1,id_2) --establish a link between two docking ports by id.
@@ -260,11 +317,46 @@ local docking = {}
       if not bob.valid then return end
       marriage(alice,bob)
     end
+
+    --now we remove our docks from the docking candidates
+    unregister_dock_from_last_location(port_1.dock,nil,port_1.location)
+    unregister_dock_from_last_location(port_2.dock,nil,port_2.location)
   end
 
-  local function find_connectable(docking_storage)
+  local function find_connectable(dock,direction,location)
+    local candidates = storage.docks[opposite[direction]][location]
 
+    for _,candidate in pairs(candidates) do --we iterate through the docking candidates, check conditions. first one that meets conditions, we can link, then break the loop. easy as.
+      if candidate.surface ~= dock.surface then
+        establish_link(dock.unit_number,candidate.unit_number)
+        TFMG.block(candidate)
+      break end
+    end
   end
+
+
+
+  local function update_platform_docks(event)
+    local platform = event.platform
+    local surface = platform.surface
+    local space_location = platform.space_location
+    local last_visited_space_location = platform.last_visited_space_location
+
+    local platform_docks = surface.find_entities_filtered{name = "TFMG-docking-port"}
+
+    if space_location then
+      for _,docking_port in pairs(platform_docks) do
+        register_dock_to_location(docking_port,space_location)
+      end
+    elseif last_visited_space_location then
+      for _,docking_port in pairs(platform_docks) do
+        unregister_dock_from_last_location(docking_port,last_visited_space_location)
+        local docking_storage = storage.docking_ports[docking_port.unit_number]
+        divorce(docking_storage)
+      end
+    end
+  end
+
 
 
 --callable functions
@@ -277,7 +369,6 @@ local docking = {}
       find_dock_belt(event.entity)
     end
     --TFMG.block(event)
-    TFMG.block(storage.docks)
   end
 
   function docking.handle_rotate_event(event)
@@ -290,13 +381,27 @@ local docking = {}
     if dock_data then on_docking_port_destroyed(unit_number) return end --only if we have an appropriate entry we should run this script. just in case
   end
 
+  function docking.space_platform_changed_state(event)
+    update_platform_docks(event)
+  end
+  
   function docking.on_tick(event)--we're gonna take the normal approch of checking a finite number of docking ports per tick
-    storage.port_from_k = flib_table.for_n_of(
-      storage.docking_ports, storage.port_from_k, 1,
+    for name,location in pairs(storage.docks.north) do
+      storage.dock_k.north[name] = flib_table.for_n_of(
+      location, storage.dock_k.north[name], 1,
       function(v)
-        find_connectable(v)
+        find_connectable(v,"north",name)
       end
     )
+    end
+    for name,location in pairs(storage.docks.east) do
+      storage.dock_k.east[name] = flib_table.for_n_of(
+      location, storage.dock_k.east[name], 1,
+      function(v)
+        find_connectable(v,"east",name)
+      end
+    )
+    end
   end
 
 return docking

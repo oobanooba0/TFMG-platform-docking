@@ -90,7 +90,7 @@ data:extend({
     resistances = data.raw["underground-belt"]["underground-belt"].resistances,
     collision_box = {{-0.4, -0.4}, {0.4, 0.4}},
     selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
-    tile_buildability_rules = connector_buildability_rules,
+    --tile_buildability_rules = connector_buildability_rules, --somethings off with this.
     placeable_position_visualization = place_visualisation,
     damaged_trigger_effect = hit_effects.entity(),
     animation_speed_coefficient = 32,
