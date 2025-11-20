@@ -292,9 +292,27 @@ local docking = {}
         if connector.valid then connector.disconnect_linked_belts() end
       end
     end
+
+
+    --deal with our registers
+
+    local partner_storage = storage.docking_ports[dock_storage.linked]
+
+    if dock_storage.space_location then
+      register_dock_to_location(dock_storage.dock,dock_storage.space_location)
+    end
+
+    if partner_storage then
+      if partner_storage.space_location then
+        register_dock_to_location(partner_storage.dock,partner_storage.space_location)
+      end
+      partner_storage.linked = false
+    end
+    dock_storage.linked = false
+
+    
+
   end
-
-
 
   local function establish_link(id_1,id_2) --establish a link between two docking ports by id.
     local port_1 = storage.docking_ports[id_1]
@@ -317,6 +335,9 @@ local docking = {}
       if not bob.valid then return end
       marriage(alice,bob)
     end
+    --save who we're linked to
+    port_1.linked = id_2
+    port_2.linked = id_1
 
     --now we remove our docks from the docking candidates
     unregister_dock_from_last_location(port_1.dock,nil,port_1.location)
