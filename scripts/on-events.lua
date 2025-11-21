@@ -5,6 +5,10 @@ local function setup_storage()--make sure all important storage tables are ready
     storage.docking_ports = {} --this should contain a full list of all existing docking ports, and useful information about them.
   end
 
+  if not storage.linked_docks then
+    storage.linked_docks = {}
+  end
+
   if not storage.docks then --this will be the table containing all my dock ids as they move around and such
     storage.docks = {}
   end
@@ -20,12 +24,20 @@ local function setup_storage()--make sure all important storage tables are ready
     end
   end
   --repeat but for the flib from k thingy
-  if not storage.dock_k then --this will be the table containing all my dock ids as they move around and such
+  
+  if not storage.dock_k.linked_docks then
+    storage.dock_k.linked_docks = {}
+  end
+
+  if not storage.dock_k then
     storage.dock_k = {}
   end
+
+
   --setup each directional dock table.
   if not storage.dock_k.north then storage.dock_k.north = {} end
   if not storage.dock_k.east then storage.dock_k.east = {} end
+  
 
   for direction, table in pairs(storage.dock_k) do --create a subtable for each space location in the game.
     for _, location in pairs(space_locations) do
@@ -65,59 +77,50 @@ end)
 --build events
 
 
-script.on_event(
-  defines.events.on_built_entity,
+script.on_event( defines.events.on_built_entity,
   function(event)
     docking.handle_build_event(event)
   end,build_event_filter
 )
-script.on_event(
-  defines.events.on_robot_built_entity,
+script.on_event( defines.events.on_robot_built_entity,
   function(event)
     docking.handle_build_event(event)
   end,build_event_filter
 )
-script.on_event(
-  defines.events.on_space_platform_built_entity,
+script.on_event( defines.events.on_space_platform_built_entity,
   function(event)
     docking.handle_build_event(event)
   end,build_event_filter
 )
-script.on_event(
-  defines.events.on_entity_cloned,
+script.on_event( defines.events.on_entity_cloned,
   function(event)
     docking.handle_build_event(event)
   end,build_event_filter
 )
-script.on_event(
-	defines.events.on_object_destroyed,
+script.on_event( defines.events.on_object_destroyed,
 	function(event)
 		docking.handle_destroy_event(event)
 	end
 )
-script.on_event(
-  defines.events.on_player_rotated_entity,
+script.on_event( defines.events.on_player_rotated_entity,
   function(event)
     docking.handle_rotate_event(event)
   end
 )
-script.on_event(
-  defines.events.on_player_flipped_entity,
+script.on_event( defines.events.on_player_flipped_entity,
   function(event)
     docking.handle_rotate_event(event)
   end
 )
 
-script.on_event(
-  defines.events.on_space_platform_changed_state,
+script.on_event( defines.events.on_space_platform_changed_state,
   function(event)
-    docking.space_platform_changed_state(event)
+    link.space_platform_changed_state(event)
   end
 )
 --on tick
-script.on_event(
-  defines.events.on_tick,--Its HaNlDeR sHoUldNt InCluDe PeRfOrMaNce HeAvY CoDe. You cant tell me what to do.
-  function(event)
-    docking.on_tick(event)
+script.on_event( defines.events.on_tick,--Its HaNlDeR sHoUldNt InCluDe PeRfOrMaNce HeAvY CoDe. You cant tell me what to do.
+  function()
+    link.on_tick()
   end
 )

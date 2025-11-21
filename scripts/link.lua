@@ -1,0 +1,280 @@
+local flib_table = require("__flib__/table")
+
+local direction_string = {
+  [defines.direction.north] = "north",
+  [defines.direction.east] = "east",
+  [defines.direction.south] = "south",
+  [defines.direction.west] = "west",
+}
+local direction_is_north_or_east = { --returns true if direction is north or east.
+  [defines.direction.north] = true,
+  [defines.direction.east] = true,
+  [defines.direction.south] = false,
+  [defines.direction.west] = false,
+}
+
+local opposite = {--just get me the opposite direction lmfao
+  ["north"] = "south",
+  ["east"] = "west",
+  ["south"] = "north",
+  ["west"] = "east",
+}
+
+
+local link = {} --technically this revison might be less optimized due to redundant work but it should be cleaner code wise.
+
+--ready and unready docks. handles docks.direction.location
+
+  function link.ready_dock(dock_id)--register a dock by its id to their location. if theyre in orbit.
+    --get important information about the dock
+    local dock_storage = storage.docking_ports[dock_id]
+    local dock_entity = dock_storage.dock--using this we can retreive the entity.
+    local dock_space_location = dock_entity.surface.platform.space_location
+
+    if not dock_space_location then return end --if this dock isnt parked in orbit, we don't add it to the list.
+
+    local direction = direction_string[dock_entity.direction]
+
+    storage.docks[direction][dock_space_location.name][dock_id] = dock_id --this might seem weird, but I'm doing pretty much everything by dock id.
+    dock_storage.space_location = dock_space_location
+
+  end
+
+
+  function link.unready_dock(dock_id) --unregister a dock from the dynamic storage table, so other docks dont attempt to connect to it
+    local dock_storage = storage.docking_ports[dock_id]
+    local dock_entity = dock_storage.dock
+    local direction = direction_string[dock_entity.direction]
+    local dock_last_space_location = dock_storage.space_location
+
+    if not dock_last_space_location then return end --if a platform changes state while not in orbit, this function ends up being called while the dock already is unregistered, and doesnt have a space location.
+
+    storage.docks[direction][dock_last_space_location.name][dock_id] = nil
+  end
+
+--deal with space location storage in storage.docking_ports, should be called whenever a platform changes locations
+
+  function link.update_dock_location(dock_entity,space_location) --update the stored location of an individual dock
+    if not dock_entity then return game.print("no dock entity found on platform") end --this may occur, since space platforms can return an empty table.
+    local dock_storage = storage.docking_ports[dock_entity.unit_number]
+
+    dock_storage.space_location = space_location --save our location name, may also be nil for no location.
+  end
+
+--linked_docks handlers, simply adds and removes docks to the list of currently conencted docks.
+
+  function link.add_to_linked_docks(dock_id) --we're only gonna keep north and east docks in this storage.
+    local dock_entity = storage.docking_ports[dock_id].dock
+
+    if direction_is_north_or_east[dock_entity.direction] then
+      storage.linked_docks[dock_id] = true
+    end
+  end
+
+  function link.remove_from_linked_docks(dock_id) --removes dock id from list of linked docks
+    storage.linked_docks[dock_id] = nil
+  end
+
+--link subhandlers, responsible for actually connecting and disconnecting docking ports.
+
+  local function link_child(alice,bob)--attempts to link two entities
+    if not alice.name == bob.name then return end --if they arent the same prototype, we don't link them
+    
+    if alice.type == "linked-belt" then --linked belt method
+      if alice.linked_belt_type == bob.linked_belt_type then return end --we can't connect if theyre the same direction.
+      alice.connect_linked_belts(bob)
+    end
+    --fluid method goes here
+  end
+
+  function link.marriage(dock_id_1,dock_id_2)--iterates through all children of a dock, and attempts to link them.
+
+    local port_1 = storage.docking_ports[dock_id_1]
+    local port_2 = storage.docking_ports[dock_id_2]
+
+    for _,alice in pairs(port_1.children.positive) do --link positive side connections
+      if not alice.valid then return end
+      local bob = port_2.children.positive[_]
+      if not bob then break end --if we don't have a corresponding child, on dock 2 that means dock 1 is larger, and we can stop checking.
+      if not bob.valid then return end
+      link_child(alice,bob)
+    end
+
+    for _,alice in pairs(port_1.children.negative) do --link negative side connections
+      if not alice.valid then return end
+      local bob = port_2.children.negative[_]
+      if not bob then break end
+      if not bob.valid then return end
+      link_child(alice,bob)
+    end
+  end
+
+  local function unlink_child(alice) --unlinks an entity if it is linked
+    if not alice.valid then return end
+
+    if alice.type == "linked_belt" then --linked belt method
+      alice.disconnect_linked_belts()
+    end
+    --fluid method goes here
+  end
+
+  function link.divorce(dock_id) --unlinks all of a docks children.
+    local dock_storage = storage.docking_ports[dock_id]
+    
+    if not dock_storage.children then return game.print("dock_storage.children = nil, it should contain positive and negative tables.") end
+
+    if not dock_storage.children.positive then return game.print("dock_storage.children.positive = nil, it should be a table") end
+    for _,alice in pairs(dock_storage.children.positive) do
+      unlink_child(alice)
+    end
+
+    if not dock_storage.children.negative then return game.print("dock_storage.children.negative = nil, it should be a table") end
+    for _,alice in pairs(dock_storage.children.negative) do
+      unlink_child(alice)
+    end
+  end
+
+
+--Dock and undock handlers, these call the link subhandlers, and also call the appropriate data modification functions.
+
+  function link.undock(dock_id) --disconnects a dock for any reason.
+    local dock_storage = storage.docking_ports[dock_id]
+
+    local dock_id_2 = dock_storage.linked
+    if not dock_id_2 then return end --we cannot at all undock a dock that is not docked.
+
+    link.divorce(dock_id) --physically undock the entities
+
+    link.remove_from_linked_docks(dock_id_2) --remove from the currently linked docks list
+    link.remove_from_linked_docks(dock_id)
+
+    --set docks to be ready. will only ready docks that have a space location.
+    link.ready_dock(dock_id_2)
+    link.ready_dock(dock_id)
+
+    local dock_storage_2 = storage.docking_ports[dock_id_2] --get the storage entry for the dock we're justn ow undocking
+
+    dock_storage_2.linked = nil
+    dock_storage.linked = nil
+
+  end
+
+
+  function link.dock(dock_id_1,dock_id_2) --connects two docks.
+
+    link.marriage(dock_id_1,dock_id_2) --handles physically connecting the docks
+
+    link.add_to_linked_docks(dock_id_1) --add dock_id to currently linked docks list
+    link.add_to_linked_docks(dock_id_2)
+
+    --save the ids of our linked docks for later refrence.
+    local dock_storage_1 = storage.docking_ports[dock_id_1]
+    dock_storage_1.linked = dock_id_2
+
+    local dock_storage_2 = storage.docking_ports[dock_id_2]
+    dock_storage_2.linked = dock_id_1
+
+    --unready both docks
+    link.unready_dock(dock_id_1)
+    link.unready_dock(dock_id_2)
+  end
+
+--docking checks
+  local function debug_connectability_checks(dock_storage_1,dock_storage_2)
+    --verify that storage for both docks exists
+    if not dock_storage_1 then game.print("attempted to link a docking port which does not exist in storage.docking_ports") return false end
+    if not dock_storage_2 then game.print("attempted to link docking port to a second docking port which does not exist in storage.docking_ports") return false end
+    return true end
+  
+  --local function get_docking_signals(dock_id)
+  --  local dock_entity = storage.docking_ports[dock_id].dock
+  --
+  --return end
+
+  function link.check_dock_connectability(dock_id_1,dock_id_2) --checks weather two docks
+    local dock_storage_1 = storage.docking_ports[dock_id_1]
+    local dock_storage_2 = storage.docking_ports[dock_id_2]
+    if not debug_connectability_checks(dock_storage_1,dock_storage_2) then return false end --these checks shouldn't be necessary for the function of the mod but might help me find out if anything weird is happening
+
+    if dock_storage_1.dock.surface.index == dock_storage_2.dock.surface.index then return false end --if both docks are on the same platform, they cannot connect.
+  
+  
+   --signal matching code here
+  return true end
+
+--find dockable
+  function link.attempt_connection(dock_id_1,direction,location_name) --attempt to find a corresponding dock in the same location to connect to.
+    local dock_storage_1 = storage.docking_ports[dock_id_1]
+    local candidates = storage.docks[opposite[direction]][location_name]
+
+    for _,dock_id_2 in pairs(candidates) do
+      if link.check_dock_connectability(dock_id_1,dock_id_2) then --if we return true, we dock and then break the loop.
+        link.dock(dock_id_1,dock_id_2)
+      break end
+    end
+  end
+
+
+--platform update functions
+  function link.space_platform_changed_state(event) --readys docks when a platform arrives in orbit, undocks and unreadies when a platform leaves
+    local platform = event.platform
+    local surface = platform.surface
+    local platform_docks = surface.find_entities_filtered{name = "TFMG-docking-port"} --get all our docks
+    
+    if not platform_docks[1] then return end --if there aren't any docks on this platform, don't do anything.
+
+    local space_location = platform.space_location
+    
+    if space_location then --if our platform is in orbit of something, we prepare our docks for docking
+      for _,dock_entity in pairs(platform_docks) do
+        local dock_id = dock_entity.unit_number
+        link.update_dock_location(dock_entity,space_location.name) --this updates our space location
+        link.ready_dock(dock_id) --this must come after we update our space location
+      end
+    else --if our platform is not in orbit, then we make sure all docks are undocked and unready.
+      for _,dock_entity in pairs(platform_docks) do
+        local dock_id = dock_entity.unit_number
+        link.unready_dock(dock_id) --this still needs space location to exist
+        link.update_dock_location(dock_entity,space_location)
+        link.undock(dock_id) --undocks all connected ports. expects space location to be nil or it will put the platforms docks into ready state.
+      end
+    end
+  end
+
+--dock status refresh function
+  function link.dock_refresh(dock_id) --resets a docking port status, used when a dock is modified or first built.
+    local dock_entity = storage.docking_ports[dock_id]
+    local space_location = dock_entity.surface.platform.space_location
+    link.update_dock_location(dock_entity,space_location)
+    link.undock(dock_id) --will also ready a dock if needed dock if appropriate.
+  end
+
+--on tick functions
+
+
+  function link.connect_ready_docks(direction) --check our ready docks and see if we can link any.
+    for location_name,docks_at_location in pairs(storage.docks[direction]) do
+      storage.dock_k[direction][location_name] = flib_table.for_n_of(docks_at_location, storage.dock_k[direction][location_name], 1,
+      function(dock_id)
+        link.attempt_connection(dock_id,direction,location_name)
+      end)
+    end
+  end
+
+  function link.check_linked_docks()--check active connections to see if we should disconnect them.
+    storage.dock_k.linked_docks = flib_table.for_n_of( storage.linked_docks, storage.dock_k.linked_docks, 1,
+    function(dock_id_1)
+      dock_id_2 = storage.docking_ports[dock_id_1].linked
+      if not link.check_dock_connectability(dock_id_1,dock_id_2) then --if this returns false, we need to undock
+        link.undock(dock_id_1)
+      end
+    end)
+  end
+
+  function link.on_tick()--we're gonna take the normal approch of checking a finite number of docking ports per tick
+    link.connect_ready_docks("north")
+    link.connect_ready_docks("east")
+    link.check_linked_docks()
+  end
+  
+return link

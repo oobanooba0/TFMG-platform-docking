@@ -1,7 +1,10 @@
-util = require("util")
-require("scripts.TFMG")
+util = require("util") --util functions are useful
+require("scripts.TFMG") --a few of my utility/debug functions.
 TFMG = require("scripts.TFMG")
-require("scripts.docking")
-docking = require("scripts.docking")
-require("scripts.on-events")--here goes init stuff too.
+require("scripts.docking") --handles the assembly of docking port multiblocks.
+docking = require("scripts.docking") 
+require("scripts.link") --handles linking docking ports.
+link = require("scripts.link")
+
+require("scripts.on-events")--registers all init events and build/rotate/destroy events.
 
