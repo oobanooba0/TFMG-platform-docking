@@ -87,7 +87,6 @@ local link = {} --technically this revison might be less optimized due to redund
     elseif alice.type == "pipe-to-ground" then--fluid method
       local fluidbox = alice.fluidbox
       fluidbox.add_linked_connection(1,bob,1)
-      alice.fluidbox[1] = fluidbox[1]
     end
   end
 
@@ -121,7 +120,6 @@ local link = {} --technically this revison might be less optimized due to redund
     elseif alice.type == "pipe-to-ground" then--fluid method
       local fluidbox = alice.fluidbox
       fluidbox.remove_linked_connection(1)
-      alice.fluidbox[1] = fluidbox[1]
       
       
     end
