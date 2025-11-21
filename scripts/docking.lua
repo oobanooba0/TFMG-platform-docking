@@ -19,6 +19,13 @@ local splitter_offsets = {
   [defines.direction.west] = { x = 0, y = -0.5 },
 }
 
+local direction_string = {
+  [defines.direction.north] = "north",
+  [defines.direction.east] = "east",
+  [defines.direction.south] = "south",
+  [defines.direction.west] = "west",
+}
+
 local opposite = {--just get me the opposite direction lmfao
   [defines.direction.north] = defines.direction.south,
   [defines.direction.east] = defines.direction.west,
@@ -185,6 +192,7 @@ local docking = {}
       iterate_children("x",position,surface,dock_storage)
     end
     --TFMG.block(storage.docking_ports[dock.unit_number])
+    link.refresh_dock_data(dock.unit_number) --finally lets refesh the docks data
   end
 
   local function find_parent(axis,position,surface)--find a docking port by iterating through adjacent dock entities.
@@ -226,14 +234,15 @@ local docking = {}
       children = {--table of all the children owned by this dock
         positive = {},
         negative = {},
-      }, 
+      },
+      direction = direction_string[dock.direction]
     }
     dock.rotatable = false --for now, imma prevent rotating a placed dock, just cause theres no real sense in it being possible.
     make_children(dock)
   end
 
   local function on_docking_port_destroyed(unit_number)
-    storage.docking_ports[unit_number] = nil
+    link.clear_dock_data(unit_number)
   end
 
   local function on_docking_belt_created(event)

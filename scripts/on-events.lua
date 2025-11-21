@@ -24,15 +24,14 @@ local function setup_storage()--make sure all important storage tables are ready
     end
   end
   --repeat but for the flib from k thingy
-  
-  if not storage.dock_k.linked_docks then
-    storage.dock_k.linked_docks = {}
-  end
 
   if not storage.dock_k then
     storage.dock_k = {}
   end
 
+  if not storage.dock_k.linked_docks then
+    storage.dock_k.linked_docks = {}
+  end
 
   --setup each directional dock table.
   if not storage.dock_k.north then storage.dock_k.north = {} end
