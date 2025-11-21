@@ -1,8 +1,9 @@
 local flib_table = require("__flib__/table")
 local math2d = require("__core__/lualib/math2d")
 
-local dock_parts_filter = {"TFMG-docking-port","TFMG-docking-belt"}
+local dock_parts_filter = {"TFMG-docking-port","TFMG-docking-belt","TFMG-docking-pipe"}
 local dock_belts_filter = {"TFMG-docking-belt"}
+local dock_pipes_filter = {"TFMG-docking-pipe"}
 local max_dock_size = 1000
 
 local offsets = {
@@ -191,7 +192,6 @@ local docking = {}
     else
       iterate_children("x",position,surface,dock_storage)
     end
-    --TFMG.block(storage.docking_ports[dock.unit_number])
     link.refresh_dock_data(dock.unit_number) --finally lets refesh the docks data
   end
 
@@ -252,6 +252,12 @@ local docking = {}
     snap_dock_belt_direction(connector)
   end
 
+  local function on_docking_pipe_created(event)
+    local connector = event.entity
+    connector.rotatable = false
+    make_parent(connector)
+  end
+
 
 
 --callable functions
@@ -260,10 +266,11 @@ local docking = {}
       on_docking_port_created(event)
     elseif event.entity.name == "TFMG-docking-belt" then
       on_docking_belt_created(event)
+    elseif event.entity.name == "TFMG-docking-pipe" then
+      on_docking_pipe_created(event)
     else
       find_dock_belt(event.entity)
     end
-    --TFMG.block(event)
   end
 
   function docking.handle_rotate_event(event)

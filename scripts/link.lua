@@ -84,8 +84,11 @@ local link = {} --technically this revison might be less optimized due to redund
     if alice.type == "linked-belt" then --linked belt method
       if alice.linked_belt_type == bob.linked_belt_type then return end --we can't connect if theyre the same direction.
       alice.connect_linked_belts(bob)
+    elseif alice.type == "pipe-to-ground" then--fluid method
+      local fluidbox = alice.fluidbox
+      fluidbox.add_linked_connection(1,bob,1)
+      alice.fluidbox[1] = fluidbox[1]
     end
-    --fluid method goes here
   end
 
   function link.marriage(dock_id_1,dock_id_2)--iterates through all children of a dock, and attempts to link them.
@@ -115,8 +118,14 @@ local link = {} --technically this revison might be less optimized due to redund
 
     if alice.type == "linked-belt" then --linked belt method
       alice.disconnect_linked_belts()
+    elseif alice.type == "pipe-to-ground" then--fluid method
+      local fluidbox = alice.fluidbox
+      fluidbox.remove_linked_connection(1)
+      alice.fluidbox[1] = fluidbox[1]
+      
+      
     end
-    --fluid method goes here
+    
   end
 
   function link.divorce(dock_id) --unlinks all of a docks children.
