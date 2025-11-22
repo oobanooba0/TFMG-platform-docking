@@ -33,11 +33,13 @@ local link = {} --technically this revison might be less optimized due to redund
     --get important information about the dock
     local dock_storage = storage.docking_ports[dock_id]
     if dock_storage.linked then return end --docks shouldnt be made ready if theyre presently linked
+    if not dock_storage.docking_signal then return end --dont ready a dock that doesnt have a set docking signal
     local dock_entity = dock_storage.dock--using this we can retreive the entity.
     if not dock_entity.valid then return end -- cant ready a dock thats kaput
     local dock_space_location = dock_entity.surface.platform.space_location
 
     if not dock_space_location then return end --if this dock isnt parked in orbit, we don't add it to the list
+    
 
     local direction = dock_storage.direction
 
@@ -192,18 +194,29 @@ local link = {} --technically this revison might be less optimized due to redund
     if not dock_storage_2 then game.print("attempted to link docking port to a second docking port which does not exist in storage.docking_ports") return false end
     return true end
   
-  --local function get_docking_signals(dock_id)
-  --  local dock_entity = storage.docking_ports[dock_id].dock
-  --
-  --return end
+  local function get_dock_signals(dock_entity,signal)
+    local signal_value = dock_entity.get_signal(signal,defines.wire_connector_id.circuit_green)
+  return signal_value end
 
   function link.check_dock_connectability(dock_id_1,dock_id_2) --checks weather two docks
     local dock_storage_1 = storage.docking_ports[dock_id_1]
     local dock_storage_2 = storage.docking_ports[dock_id_2]
     if not debug_connectability_checks(dock_storage_1,dock_storage_2) then return false end --these checks shouldn't be necessary for the function of the mod but might help me find out if anything weird is happening
 
+    if not dock_storage_1.dock.valid then return false end
+    if not dock_storage_2.dock.valid then return false end
+
+
     if dock_storage_1.dock.surface.index == dock_storage_2.dock.surface.index then return false end --if both docks are on the same platform, they cannot connect.
-  
+    local docking_signal_1 = dock_storage_1.docking_signal
+    local docking_signal_2 = dock_storage_2.docking_signal
+    if docking_signal_1.name ~= docking_signal_2.name then return false end --if the docking signals set arent equal, we dont dock
+    if docking_signal_1.quality ~= docking_signal_2.quality then return false end
+
+    local dock_input_signal_1 = get_dock_signals(dock_storage_1.dock,docking_signal_1)
+    local dock_input_signal_2 = get_dock_signals(dock_storage_2.dock,docking_signal_1)
+
+    if dock_input_signal_1 ~= dock_input_signal_2 then return false end
   
    --signal matching code here
   return true end
@@ -252,6 +265,7 @@ local link = {} --technically this revison might be less optimized due to redund
     local space_location = dock_entity.surface.platform.space_location
     link.update_dock_location(dock_entity,space_location)
     link.undock(dock_id)
+    link.unready_dock(dock_id) --Sets dock unready, incase it hasnt already.
     link.ready_dock(dock_id) --sets dock to ready if appropriate
   end
 

@@ -160,3 +160,10 @@ script.on_event( defines.events.on_gui_closed,
     ui.on_gui_closed(event)
   end
 )
+
+script.on_event( defines.events.on_gui_elem_changed,
+  function(event)
+    ui.on_gui_elem_changed(event)
+  end
+)
+

@@ -1,13 +1,21 @@
 local ui = {}
 
 --utlity functions
-  ui.find_parent_frame = function(element) --find the uppermost frame which this element is in.
+  function ui.find_parent_frame(element)--find the uppermost frame which this element is in.
     local frame = element
     while frame do
       if frame.tags["TFMG_dock_ui"] then return frame end
       frame = frame.parent
     end
   return nil end
+
+  function ui.change_signal_picker(event) --changes the value of the signal picker and saves it to the docks storage
+    local element = event.element
+    local main_frame = ui.find_parent_frame(element)
+    local dock_id = main_frame.tags["dock_id"]
+    storage.docking_ports[dock_id].docking_signal = element.elem_value
+    link.refresh_dock_data(dock_id) -- refresh the dock incase it should be unreadied or whatever
+  end
 
 --dock ui sub frame functions
 
@@ -38,7 +46,7 @@ local ui = {}
     }
   end
 
-  function ui.circuit_control_panel(frame)--add a signal picker
+  function ui.circuit_control_panel(frame,dock_storage)--add a signal picker
     local control_panel = frame.add{
       type = "flow",
       direction = "horizontal",
@@ -53,14 +61,15 @@ local ui = {}
       sprite = "info",
       tooltip = "dock-signal description"
     }
-    control_panel.add{ --signal picker thingy
+    local signal_picker = control_panel.add{ --signal picker thingy
       type = "choose-elem-button",
-      name = "dock_signal",
+      name = "TFMG_dock_signal_picker",
       elem_type = "signal",
     }
+    signal_picker.elem_value = dock_storage.docking_signal
   end
 
-  function ui.connected_dock_preview(frame)
+  function ui.connected_dock_preview(frame) --creates the connected dock preview frame
     local view_panel = frame.add{
       type = "frame",
       style = "inside_deep_frame",
@@ -75,7 +84,7 @@ local ui = {}
 
   return view_panel end
 
-  function ui.set_view_panel_camera(view_panel,dock_storage) --set dock camera
+  function ui.set_view_panel_camera(view_panel,dock_storage) --sets dock camera
 
     if dock_storage.linked then --if we have a currently linked entity.
       local linked_entity = storage.docking_ports[dock_storage.linked].dock
@@ -102,13 +111,17 @@ local ui = {}
 --create dock ui primary
   function ui.create_main_frame(event) --primary dock ui creator function
   local player = game.get_player(event.player_index) --get our useful information
-  local dock_storage = storage.docking_ports[event.entity.unit_number]
+  local dock_id = event.entity.unit_number
+  local dock_storage = storage.docking_ports[dock_id]
 
   local main_frame = player.gui.screen.add{
     type = "frame",
     name = "dock_gui",
     direction = "vertical",
-    tags = {TFMG_dock_ui = true}
+    tags = {
+      TFMG_dock_ui = true,
+      dock_id = dock_id,
+    }
   }
   player.opened = main_frame
   main_frame.style.vertically_stretchable = true
@@ -117,7 +130,8 @@ local ui = {}
 
   
   ui.main_title_bar(main_frame,"docking ui title")
-  ui.circuit_control_panel(main_frame)
+  ui.circuit_control_panel(main_frame,dock_storage)
+  main_frame.add{type = "line"}
   local view_panel = ui.connected_dock_preview(main_frame)
   ui.set_view_panel_camera(view_panel,dock_storage)
 
@@ -141,11 +155,16 @@ local ui = {}
   end
 
   function ui.on_gui_closed(event)
-    
     if event.element and event.element.tags["TFMG_dock_ui"] then
-    event.element.destroy()
+      event.element.destroy()
     end
+  end
 
+  function ui.on_gui_elem_changed(event)
+    local element = event.element
+    if element and element.valid and element.name == "TFMG_dock_signal_picker" then
+      ui.change_signal_picker(event)
+    end
   end
 
 return ui

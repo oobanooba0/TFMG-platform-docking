@@ -235,7 +235,8 @@ local docking = {}
         positive = {},
         negative = {},
       },
-      direction = direction_string[dock.direction]
+      direction = direction_string[dock.direction],
+      docking_signal = nil,
     }
     dock.rotatable = false --for now, imma prevent rotating a placed dock, just cause theres no real sense in it being possible.
     make_children(dock)
