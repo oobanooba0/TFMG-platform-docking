@@ -149,6 +149,12 @@ script.on_event( defines.events.on_gui_opened,
   end
 )
 
+script.on_event( defines.events.on_gui_click,
+  function(event)
+    ui.on_gui_click(event)
+  end
+)
+
 script.on_event( defines.events.on_gui_closed,
   function(event)
     ui.on_gui_closed(event)
