@@ -45,6 +45,13 @@ local function setup_storage()--make sure all important storage tables are ready
   end
 end
 
+local function setup_gui_storage(event)
+  --player gui storage
+  local player_index = event.player_index
+  if not storage.player_ui then storage.player_ui = {} end
+  if not storage.player_ui[player_index] then storage.player_ui[player_index] = {} end
+end
+
 local build_event_filter = {--what entities the on build events should check for.
   {
   	filter = "name",
@@ -77,6 +84,12 @@ end)
 script.on_configuration_changed(function()
   setup_storage()
 end)
+
+script.on_event(defines.events.on_player_created,
+  function(event)
+    setup_gui_storage(event)
+  end
+)
 
 --build events
 
@@ -126,5 +139,18 @@ script.on_event( defines.events.on_space_platform_changed_state,
 script.on_event( defines.events.on_tick,--Its HaNlDeR sHoUldNt InCluDe PeRfOrMaNce HeAvY CoDe. You cant tell me what to do.
   function()
     link.on_tick()
+  end
+)
+
+--UI interaction events
+script.on_event( defines.events.on_gui_opened,
+  function(event)
+    ui.on_gui_opened(event)
+  end
+)
+
+script.on_event( defines.events.on_gui_closed,
+  function(event)
+    ui.on_gui_closed(event)
   end
 )
