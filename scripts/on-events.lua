@@ -43,12 +43,18 @@ local function setup_storage()--make sure all important storage tables are ready
       if not table[location.name] then table[location.name] = {} end
     end
   end
+
+  if not storage.player_ui then storage.player_ui = {} end
+
+  for player_index, player in pairs(game.players) do
+    if not storage.player_ui[player_index] then storage.player_ui[player_index] = {} end
+  end
+
 end
 
 local function setup_gui_storage(event)
   --player gui storage
   local player_index = event.player_index
-  if not storage.player_ui then storage.player_ui = {} end
   if not storage.player_ui[player_index] then storage.player_ui[player_index] = {} end
 end
 
