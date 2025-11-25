@@ -12,7 +12,7 @@ local fastest_belt_animation_set = {--yellow belt set
 local fastest_belt_animation_speed_coefficient = 32 --yellow belt speed coof
 
 for _,belt in pairs(data.raw["transport-belt"]) do--easy iterate through every belt in the game, find the highest speed value, use that
-  if belt.speed > fastest_belt_speed then
+  if belt.speed > fastest_belt_speed and not belt.hidden then
     fastest_belt_speed = belt.speed
     fastest_belt_animation_set = belt.belt_animation_set
     fastest_belt_animation_speed_coefficient = belt.animation_speed_coefficient
