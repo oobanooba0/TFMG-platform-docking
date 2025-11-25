@@ -167,3 +167,9 @@ script.on_event( defines.events.on_gui_elem_changed,
   end
 )
 
+script.on_event( defines.events.on_gui_checked_state_changed,
+  function(event)
+    ui.on_gui_checked_state_changed(event)
+  end
+)
+

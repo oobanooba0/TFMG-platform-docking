@@ -17,6 +17,15 @@ local ui = {}
     link.refresh_dock_data(dock_id) -- refresh the dock incase it should be unreadied or whatever
   end
 
+  function ui.zero_signal_toggle(event) --toggles the 0 signal value
+    local element = event.element
+    local main_frame = ui.find_parent_frame(element)
+    local dock_id = main_frame.tags["dock_id"]
+    storage.docking_ports[dock_id].zero_dock = not storage.docking_ports[dock_id].zero_dock
+    TFMG.block(storage.docking_ports[dock_id])
+    link.refresh_dock_data(dock_id) -- refresh the dock incase it should be unreadied or whatever
+  end
+
 --dock ui sub frame functions
 
   function ui.main_title_bar(main_frame,caption) --adds the main title bar
@@ -67,6 +76,20 @@ local ui = {}
       elem_type = "signal",
     }
     signal_picker.elem_value = dock_storage.docking_signal
+    control_panel.add{
+      type = "label",
+      caption = "Dock on 0 signal",
+    }
+    control_panel.add{--little info icon to hover over
+      type = "sprite",
+      sprite = "info",
+      tooltip = "dock-signal description"
+    }
+    local dock_toggle = control_panel.add{ --signal picker thingy
+      type = "checkbox",
+      name = "TFMG_dock_zero_signal",
+      state = dock_storage.zero_dock
+    }
   end
 
   function ui.connected_dock_preview(frame) --creates the connected dock preview frame
@@ -164,6 +187,13 @@ local ui = {}
     local element = event.element
     if element and element.valid and element.name == "TFMG_dock_signal_picker" then
       ui.change_signal_picker(event)
+    end
+  end
+
+  function ui.on_gui_checked_state_changed(event)
+    local element = event.element
+    if element and element.valid and element.name == "TFMG_dock_zero_signal" then
+      ui.zero_signal_toggle(event)
     end
   end
 
