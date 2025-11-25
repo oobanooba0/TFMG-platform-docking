@@ -242,6 +242,7 @@ local link = {} --technically this revison might be less optimized due to redund
   function link.space_platform_changed_state(event) --readys docks when a platform arrives in orbit, undocks and unreadies when a platform leaves
     local platform = event.platform
     local surface = platform.surface
+    if not surface then return end
     local platform_docks = surface.find_entities_filtered{name = "TFMG-docking-port"} --get all our docks
     
     if not platform_docks[1] then return end --if there aren't any docks on this platform, don't do anything.
