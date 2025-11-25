@@ -29,8 +29,8 @@ local function setup_storage()--make sure all important storage tables are ready
     storage.dock_k = {}
   end
 
-  if not storage.dock_k.linked_docks then
-    storage.dock_k.linked_docks = {}
+  if not storage.linked_docks_k then
+    storage.linked_docks_k = {}
   end
 
   --setup each directional dock table.

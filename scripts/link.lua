@@ -294,7 +294,7 @@ local link = {} --technically this revison might be less optimized due to redund
   end
 
   function link.check_linked_docks()--check active connections to see if we should disconnect them.
-    storage.dock_k.linked_docks = flib_table.for_n_of( storage.linked_docks, storage.dock_k.linked_docks, 1,
+    storage.linked_docks_k = flib_table.for_n_of( storage.linked_docks, storage.linked_docks_k, 1,
     function(v,dock_id_1) --weird but its Value, Key, and we need the key
       dock_id_2 = storage.docking_ports[dock_id_1].linked
       if not link.check_dock_connectability(dock_id_1,dock_id_2) then --if this returns false, we need to undock
