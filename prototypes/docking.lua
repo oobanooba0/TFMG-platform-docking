@@ -4,18 +4,18 @@ local sounds = require("__base__.prototypes.entity.sounds")
 local hit_effects = require("__base__.prototypes.entity.hit-effects")
 --belt animation set
 
-local basic_belt_animation_set =
-{
-  animation_set =
-  {
-    filename = "__base__/graphics/entity/transport-belt/transport-belt.png",
-    priority = "extra-high",
-    size = 128,
-    scale = 0.5,
-    frame_count = 16,
-    direction_count = 20
-  },
-}
+--local basic_belt_animation_set =
+--{
+--  animation_set =
+--  {
+--    filename = "__base__/graphics/entity/transport-belt/transport-belt.png",
+--    priority = "extra-high",
+--    size = 128,
+--    scale = 0.5,
+--    frame_count = 16,
+--    direction_count = 20
+--  },
+--}
 
 local connector_buildability_rules = {
   {
@@ -95,8 +95,8 @@ local place_visualisation = {
     --tile_buildability_rules = connector_buildability_rules, --somethings off with this.
     placeable_position_visualization = place_visualisation,
     damaged_trigger_effect = hit_effects.entity(),
-    animation_speed_coefficient = 32,
-    belt_animation_set = basic_belt_animation_set,
+    --animation_speed_coefficient = 32,
+    --belt_animation_set = basic_belt_animation_set,
     fast_replaceable_group = "docking-belts",
     speed = 0.03125,
     structure_render_layer = "object",
@@ -331,6 +331,89 @@ local place_visualisation = {
         scale = 0.5,
         flags = {"icon"}
       },
+    },
+  },
+--recipe time
+  {--docking controller 
+    type = "recipe",
+    name = "TFMG-docking-port",
+    energy_required = 4,
+    enabled = false,
+    allow_productivity = false,
+    ingredients = {
+      { type = "item", name = "constant-combinator", amount = 1 },
+      { type = "item", name = "processing-unit", amount = 8 },
+      { type = "item", name = "steel-plate", amount = 8 },
+    },
+    results = { 
+      { type = "item", name = "TFMG-docking-port", amount = 1 }
+    },
+  },
+  {--docking belt
+    type = "recipe",
+    name = "TFMG-docking-belt",
+    energy_required = 4,
+    enabled = false,
+    allow_productivity = false,
+    ingredients = {
+      { type = "item", name = "express-underground-belt", amount = 1 },
+      { type = "item", name = "electric-engine-unit", amount = 4 },
+      { type = "item", name = "low-density-structure", amount = 8 },
+    },
+    results = { 
+      { type = "item", name = "TFMG-docking-belt", amount = 1 }
+    },
+  },
+  {--docking pipe
+    type = "recipe",
+    name = "TFMG-docking-pipe",
+    energy_required = 4,
+    enabled = false,
+    allow_productivity = false,
+    ingredients = {
+      { type = "item", name = "pipe-to-ground", amount = 1 },
+      { type = "item", name = "electric-engine-unit", amount = 4 },
+      { type = "item", name = "low-density-structure", amount = 8 },
+    },
+    results = { 
+      { type = "item", name = "TFMG-docking-pipe", amount = 1 }
+    },
+  },
+--technology
+  {--platform-docking
+    type = "technology",
+    name = "TFMG-platform-docking",
+    icons = {
+      {icon = "__space-age__/graphics/technology/space-platform.png", icon_size = 256},
+      {icon = "__base__/graphics/technology/logistic-system.png", icon_size = 256},
+    },
+    icon_size = 256,
+    effects =
+    {
+      {
+        type = "unlock-recipe",
+        recipe = "TFMG-docking-port"
+      },
+      {
+        type = "unlock-recipe",
+        recipe = "TFMG-docking-pipe"
+      },
+      {
+        type = "unlock-recipe",
+        recipe = "TFMG-docking-belt"
+      },
+    },
+    prerequisites = {"space-science-pack"},
+    unit = {
+      count = 500,
+      ingredients = {
+        {"automation-science-pack", 1},
+        {"logistic-science-pack", 1},
+        {"chemical-science-pack", 1},
+        {"utility-science-pack", 1},
+        {"space-science-pack", 1},
+      },
+      time = 60
     },
   },
 })

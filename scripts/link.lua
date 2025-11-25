@@ -195,7 +195,9 @@ local link = {} --technically this revison might be less optimized due to redund
     return true end
   
   local function get_dock_signals(dock_entity,signal)
-    local signal_value = dock_entity.get_signal(signal,defines.wire_connector_id.circuit_green)
+    local green = dock_entity.get_signal(signal,defines.wire_connector_id.circuit_green)
+    local red = dock_entity.get_signal(signal,defines.wire_connector_id.circuit_red)
+    local signal_value = red + green
   return signal_value end
 
   function link.check_dock_connectability(dock_id_1,dock_id_2) --checks weather two docks
