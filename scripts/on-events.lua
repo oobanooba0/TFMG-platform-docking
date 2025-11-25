@@ -139,6 +139,7 @@ script.on_event( defines.events.on_space_platform_changed_state,
 script.on_event( defines.events.on_tick,--Its HaNlDeR sHoUldNt InCluDe PeRfOrMaNce HeAvY CoDe. You cant tell me what to do.
   function()
     link.on_tick()
+    ui.on_tick()
   end
 )
 
