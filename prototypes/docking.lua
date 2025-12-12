@@ -25,7 +25,7 @@ local connector_buildability_rules = {
     remove_on_collision = true,
   },
   {
-    area = {{-1, -50}, {1, -0.6}},
+    area = {{-0.5, -50}, {0.5, -0.6}},
     required_tiles = {layers = {empty_space = true}},
     remove_on_collision = true,
   },
@@ -46,7 +46,9 @@ local place_visualisation = {
   docking_port.minable = {mining_time = 0.1, result = "TFMG-docking-port"}
   docking_port.tile_buildability_rules = connector_buildability_rules
   docking_port.placeable_position_visualization = place_visualisation
-  
+  docking_port.collision_box = {{-0.4, -50}, {0.4, 0.4}}
+  docking_port.collision_mask = { layers = {is_lower_object=true, is_object=true, transport_belt=true}}
+
   data:extend({
     docking_port,--docking port entity
     {--docking port item
@@ -91,8 +93,9 @@ local place_visualisation = {
     resistances = data.raw["underground-belt"]["underground-belt"].resistances,
     collision_box = {{-0.4, -0.4}, {0.4, 0.4}},
     selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
-    surface_conditions = {{property = "gravity",min = 0,max = 0}},
+    --collision_mask = { layers = {is_lower_object=true, is_object=true, transport_belt=true}},
     --tile_buildability_rules = connector_buildability_rules, --somethings off with this.
+    surface_conditions = {{property = "gravity",min = 0,max = 0}},
     placeable_position_visualization = place_visualisation,
     damaged_trigger_effect = hit_effects.entity(),
     --animation_speed_coefficient = 32,
@@ -191,8 +194,10 @@ local place_visualisation = {
 
     },
     fast_replaceable_group = "docking-pipes",
-    collision_box = {{-0.29, -0.29}, {0.29, 0.2}},
+    collision_box = {{-0.4, -0.4}, {0.4, 0.4}},
     selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
+    --collision_mask = { layers = {is_lower_object=true, is_object=true, transport_belt=true}},
+    --tile_buildability_rules = connector_buildability_rules,
     surface_conditions = {{property = "gravity",min = 0,max = 0}},
     damaged_trigger_effect = hit_effects.entity(),
     fluid_box =
