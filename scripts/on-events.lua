@@ -50,6 +50,8 @@ local function setup_storage()--make sure all important storage tables are ready
     if not storage.player_ui[player_index] then storage.player_ui[player_index] = {} end
   end
 
+  if not storage.colliders then storage.colliders = {} end
+
 end
 
 local function setup_gui_storage(event)

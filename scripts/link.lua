@@ -60,7 +60,7 @@ local link = {} --technically this revison might be less optimized due to redund
 --deal with space location storage in storage.docking_ports, should be called whenever a platform changes locations
 
   function link.update_dock_location(dock_entity,space_location) --update the stored location of an individual dock
-    if not dock_entity then return game.print("no dock entity found on platform") end --this may occur, since space platforms can return an empty table.
+    if not dock_entity then return end --this may occur, since space platforms can return an empty table.
     local dock_storage = storage.docking_ports[dock_entity.unit_number]
 
     dock_storage.space_location = space_location --save our location name, may also be nil for no location.
@@ -131,13 +131,13 @@ local link = {} --technically this revison might be less optimized due to redund
   function link.divorce(dock_id) --unlinks all of a docks children.
     local dock_storage = storage.docking_ports[dock_id]
     
-    if not dock_storage.children then return game.print("dock_storage.children = nil, it should contain positive and negative tables.") end
-    if not dock_storage.children.positive then return game.print("dock_storage.children.positive = nil, it should be a table") end
+    if not dock_storage.children then return end
+    if not dock_storage.children.positive then return end
     for _,alice in pairs(dock_storage.children.positive) do
       unlink_child(alice)
     end
 
-    if not dock_storage.children.negative then return game.print("dock_storage.children.negative = nil, it should be a table") end
+    if not dock_storage.children.negative then return end
     for _,alice in pairs(dock_storage.children.negative) do
       unlink_child(alice)
     end
@@ -190,8 +190,8 @@ local link = {} --technically this revison might be less optimized due to redund
 --docking checks
   local function debug_connectability_checks(dock_storage_1,dock_storage_2)
     --verify that storage for both docks exists
-    if not dock_storage_1 then game.print("attempted to link a docking port which does not exist in storage.docking_ports") return false end
-    if not dock_storage_2 then game.print("attempted to link docking port to a second docking port which does not exist in storage.docking_ports") return false end
+    if not dock_storage_1 then return false end
+    if not dock_storage_2 then return false end
     return true end
   
   local function get_dock_signals(dock_entity,signal)

@@ -224,6 +224,30 @@ local docking = {}
 
 --create destroy events
 
+  local function create_collider(event) --creates a collider entity
+    local entity = event.entity
+    local surface = entity.surface
+    local unit_number = entity.unit_number
+    local direction = entity.direction
+    if entity.name == "TFMG-docking-belt" then --if docking belt we should check if we must flip it.
+      belt_type = entity.linked_belt_type
+      if belt_type then
+        game.print(belt_type)
+        if belt_type == "output" then
+            direction = opposite[direction]
+            game.print("flip")
+        end
+      end
+    end
+    script.register_on_object_destroyed(entity)
+    local collider = surface.create_entity{
+      name = "TFMG-dock-collider",
+      position = entity.position,
+      direction = direction,
+    }
+    storage.colliders[unit_number] = collider
+  end
+
   local function on_docking_port_created(event)
     local dock = event.entity
     local _reg_number, unit_number, _type = script.register_on_object_destroyed(dock)
@@ -241,6 +265,7 @@ local docking = {}
     }
     dock.rotatable = false --for now, imma prevent rotating a placed dock, just cause theres no real sense in it being possible.
     make_children(dock)
+    create_collider(event)
   end
 
   local function on_docking_port_destroyed(unit_number)
@@ -252,12 +277,14 @@ local docking = {}
     connector.rotatable = false
     make_parent(connector)
     snap_dock_belt_direction(connector)
+    create_collider(event)
   end
 
   local function on_docking_pipe_created(event)
     local connector = event.entity
     connector.rotatable = false
     make_parent(connector)
+    create_collider(event)
   end
 
 
@@ -273,6 +300,7 @@ local docking = {}
     else
       find_dock_belt(event.entity)
     end
+
   end
 
   function docking.handle_rotate_event(event)
@@ -282,7 +310,13 @@ local docking = {}
   function docking.handle_destroy_event(event)
     local unit_number = event.useful_id
     local dock_data = storage.docking_ports[unit_number]
-    if dock_data then on_docking_port_destroyed(unit_number) return end --only if we have an appropriate entry we should run this script. just in case
+    if dock_data then on_docking_port_destroyed(unit_number) end --only if we have an appropriate entry we should run this script. just in case
+
+    local collider = storage.colliders[unit_number]
+    if collider then
+      collider.destroy()
+      storage.colliders[unit_number] = nil
+    end
   end
 
 return docking

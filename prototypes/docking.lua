@@ -25,7 +25,7 @@ local connector_buildability_rules = {
     remove_on_collision = true,
   },
   {
-    area = {{-0.5, -50}, {0.5, -0.6}},
+    area = {{-1.5, -50}, {1.5, -0.6}},
     required_tiles = {layers = {empty_space = true}},
     remove_on_collision = true,
   },
@@ -46,11 +46,19 @@ local place_visualisation = {
   docking_port.minable = {mining_time = 0.1, result = "TFMG-docking-port"}
   docking_port.tile_buildability_rules = connector_buildability_rules
   docking_port.placeable_position_visualization = place_visualisation
-  docking_port.collision_box = {{-0.4, -50}, {0.4, 0.4}}
-  docking_port.collision_mask = { layers = {is_lower_object=true, is_object=true, transport_belt=true}}
+  docking_port.collision_box = {{-0.4, -0.4}, {0.4, 0.4}}
+  --docking_port.collision_mask = { layers = {is_lower_object=true, is_object=true, transport_belt=true}}
 
   data:extend({
     docking_port,--docking port entity
+    {--hidden simple entity
+      type = "simple-entity-with-owner",
+      name = "TFMG-dock-collider",
+      collision_box = {{-1.5, -50}, {1.5, 0.4}},
+      tile_buildability_rules = connector_buildability_rules,
+      placeable_position_visualization = place_visualisation,
+      collision_mask = { layers = {}},
+    },
     {--docking port item
     type = "item",
     name = "TFMG-docking-port",
@@ -197,7 +205,7 @@ local place_visualisation = {
     collision_box = {{-0.4, -0.4}, {0.4, 0.4}},
     selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
     --collision_mask = { layers = {is_lower_object=true, is_object=true, transport_belt=true}},
-    --tile_buildability_rules = connector_buildability_rules,
+    tile_buildability_rules = connector_buildability_rules,
     surface_conditions = {{property = "gravity",min = 0,max = 0}},
     damaged_trigger_effect = hit_effects.entity(),
     fluid_box =
