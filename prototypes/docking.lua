@@ -58,6 +58,9 @@ local place_visualisation = {
       tile_buildability_rules = connector_buildability_rules,
       placeable_position_visualization = place_visualisation,
       collision_mask = { layers = {}},
+      hidden = true,
+      hidden_in_factoriopedia = true,
+      flags = {"not-on-map"},
     },
     {--docking port item
     type = "item",
