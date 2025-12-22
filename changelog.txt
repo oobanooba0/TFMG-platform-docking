@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.4
-Date: ????
+Date: 2025-12-22
   Changes:
     - hid the docking collider from the map
     - hid the docking collider from selection lists and factoriopedia
