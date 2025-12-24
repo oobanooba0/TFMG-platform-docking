@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.5
-Date: ????
+Date: 2025-12-24
   Bugfixes:
     - Docking pipe placability rules were borked, theyre fixed now
     - fixed crash when editing a linked dock that contains a docking pipe.
