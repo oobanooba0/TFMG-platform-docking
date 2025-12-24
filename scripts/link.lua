@@ -81,21 +81,26 @@ local link = {} --technically this revison might be less optimized due to redund
 --link subhandlers, responsible for actually connecting and disconnecting docking ports.
 
   local function link_child(alice,bob)--attempts to link two entities
-    if not alice.name == bob.name then return end --if they arent the same prototype, we don't link them
-    
+
+    --game.print(serpent.block(alice))
+    --game.print(serpent.block(bob))
+
+    if alice.type ~= bob.type then return end --if they arent the same prototype, we don't link them
+
     if alice.type == "linked-belt" then --linked belt method
       if alice.linked_belt_type == bob.linked_belt_type then return end --we can't connect if theyre the same direction.
       alice.connect_linked_belts(bob)
     elseif alice.type == "pipe-to-ground" then--fluid method
-      local fluidbox = alice.fluidbox
-      fluidbox.add_linked_connection(1,bob,1)
+      alice.fluidbox.add_linked_connection(1,bob,1)
     end
   end
 
   function link.marriage(dock_id_1,dock_id_2)--iterates through all children of a dock, and attempts to link them.
 
     local port_1 = storage.docking_ports[dock_id_1]
+    --game.print(serpent.block(port_1.children))
     local port_2 = storage.docking_ports[dock_id_2]
+    --game.print(serpent.block(port_2.children))
 
     for _,alice in pairs(port_1.children.positive) do --link positive side connections
       if not alice.valid then return end
@@ -114,7 +119,7 @@ local link = {} --technically this revison might be less optimized due to redund
     end
   end
 
-  local function unlink_child(alice) --unlinks an entity if it is linked
+  function unlink_child(alice) --unlinks an entity if it is linked
     if not alice.valid then return end
 
     if alice.type == "linked-belt" then --linked belt method
@@ -122,24 +127,23 @@ local link = {} --technically this revison might be less optimized due to redund
     elseif alice.type == "pipe-to-ground" then--fluid method
       local fluidbox = alice.fluidbox
       fluidbox.remove_linked_connection(1)
-      
-      
     end
-    
   end
 
   function link.divorce(dock_id) --unlinks all of a docks children.
     local dock_storage = storage.docking_ports[dock_id]
     
     if not dock_storage.children then return end
-    if not dock_storage.children.positive then return end
-    for _,alice in pairs(dock_storage.children.positive) do
-      unlink_child(alice)
+    if dock_storage.children.positive then
+      for _,alice in pairs(dock_storage.children.positive) do
+        unlink_child(alice)
+      end
     end
 
-    if not dock_storage.children.negative then return end
-    for _,alice in pairs(dock_storage.children.negative) do
-      unlink_child(alice)
+    if dock_storage.children.negative then
+      for _,alice in pairs(dock_storage.children.negative) do
+        unlink_child(alice)
+      end
     end
   end
 

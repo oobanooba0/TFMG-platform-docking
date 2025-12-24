@@ -129,7 +129,6 @@ local docking = {}
     elseif belt.type == "splitter" then
       find_dock_splitter(belt)
     end
-    
   end
 
 
@@ -167,31 +166,22 @@ local docking = {}
     end
   end
 
-  local function seperate_children(dock_storage) --disconnect all the linked belts
-    if dock_storage.children then
-      for _,connector in pairs(dock_storage.children.positive) do
-        if connector.valid then connector.disconnect_linked_belts() end
-      end
-      for _,connector in pairs(dock_storage.children.negative) do
-        if connector.valid then connector.disconnect_linked_belts() end
-      end
-    end
-    dock_storage.children = {positive = {},negative = {}}
-  end
-
   local function make_children(dock)--this should update what linked belts are connected to the docking port
     local direction = dock.direction
     local position = dock.position
     local surface = dock.surface
     local dock_storage = storage.docking_ports[dock.unit_number]
     if not dock_storage then return end
-    seperate_children(dock_storage)
+
+    link.divorce(dock.unit_number)
+    dock_storage.children = {positive = {},negative = {}}
     
     if direction == 4 or direction == 12 then --we need to know what axis to check.
       iterate_children("y",position,surface,dock_storage)
     else
       iterate_children("x",position,surface,dock_storage)
     end
+    --game.print(serpent.block(dock_storage.children))
     link.refresh_dock_data(dock.unit_number) --finally lets refesh the docks data
   end
 

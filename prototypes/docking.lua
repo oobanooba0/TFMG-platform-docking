@@ -31,6 +31,20 @@ local connector_buildability_rules = {
   },
 }
 
+local connector_buildability_rules_pipe = {
+  {
+    area = {{-0.4, -0.4}, {0.4, 0.4}},
+    required_tiles = {layers = {ground_tile = true}},
+    colliding_tiles = {layers = {empty_space = true}},
+    remove_on_collision = true,
+  },
+  {
+    area = {{-1.5, 0.6}, {1.5, 50}},
+    required_tiles = {layers = {empty_space = true}},
+    remove_on_collision = true,
+  },
+}
+
 local place_visualisation = {
     filename = "__core__/graphics/cursor-boxes-32x32.png",
     priority = "extra-high-no-scale",
@@ -208,7 +222,7 @@ local place_visualisation = {
     collision_box = {{-0.4, -0.4}, {0.4, 0.4}},
     selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
     --collision_mask = { layers = {is_lower_object=true, is_object=true, transport_belt=true}},
-    tile_buildability_rules = connector_buildability_rules,
+    tile_buildability_rules = connector_buildability_rules_pipe,
     surface_conditions = {{property = "gravity",min = 0,max = 0}},
     damaged_trigger_effect = hit_effects.entity(),
     fluid_box =
