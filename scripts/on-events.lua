@@ -182,3 +182,26 @@ script.on_event( defines.events.on_gui_checked_state_changed,
   end
 )
 
+--rotate/flip events
+script.on_event("interface-rotate",
+  function (event)
+    docking.belt_flip(event)
+  end
+)
+script.on_event("interface-rotate-reverse",
+  function (event)
+    docking.belt_flip(event)
+  end
+)
+script.on_event("interface-flip-horizontal",
+  function (event)
+    docking.belt_flip(event)
+  end
+)
+script.on_event("interface-flip-vertical",
+  function (event)
+    docking.belt_flip(event)
+  end
+)
+
+

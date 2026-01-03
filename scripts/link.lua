@@ -119,7 +119,7 @@ local link = {} --technically this revison might be less optimized due to redund
     end
   end
 
-  function unlink_child(alice) --unlinks an entity if it is linked
+  function link.unlink_child(alice) --unlinks an entity if it is linked
     if not alice.valid then return end
 
     if alice.type == "linked-belt" then --linked belt method
@@ -136,13 +136,13 @@ local link = {} --technically this revison might be less optimized due to redund
     if not dock_storage.children then return end
     if dock_storage.children.positive then
       for _,alice in pairs(dock_storage.children.positive) do
-        unlink_child(alice)
+        link.unlink_child(alice)
       end
     end
 
     if dock_storage.children.negative then
       for _,alice in pairs(dock_storage.children.negative) do
-        unlink_child(alice)
+        link.unlink_child(alice)
       end
     end
   end

@@ -36,6 +36,8 @@ local opposite = {--just get me the opposite direction lmfao
   ["east"] = "west",
   ["south"] = "north",
   ["west"] = "east",
+  ["output"] = "input",
+  ["input"] = "output"
 }
 
 local belt_types = {
@@ -290,11 +292,46 @@ local docking = {}
     else
       find_dock_belt(event.entity)
     end
-
   end
 
   function docking.handle_rotate_event(event)
     find_dock_belt(event.entity)
+  end
+
+  function docking.belt_flip(event)
+    local selected = event.selected_prototype
+    if not selected or selected.name ~= "TFMG-docking-belt" then return end
+    game.print("selected the belt for rotation/flip")
+    --this is the check from TFMG thermal core, that prevents futher code from running in instances where rotations would not be expected.
+    local player = game.players[event.player_index]
+    if not player.is_cursor_empty() then
+      local cursor_stack
+      if player.cursor_stack and player.cursor_stack.valid_for_read then
+        cursor_stack = player.cursor_stack.prototype
+      elseif player.cursor_ghost then
+        cursor_stack = player.cursor_ghost.name
+      end
+      if not cursor_stack then return end
+      if cursor_stack.place_result then return end
+    end
+
+    local surface = player.surface
+    local connector_entity = surface.find_entity(selected.name,event.cursor_position)--get our actual selected entity
+    if not connector_entity or not connector_entity.linked_belt_type then return end
+
+    --get parent dock.
+    local direction = connector_entity.direction
+    local position = connector_entity.position
+
+    if direction == 4 or direction == 12 then --honestly, i should have baked this part into the find parent function. Fuck me
+      dock = find_parent("y",position,surface)
+    else
+      dock = find_parent("x",position,surface)
+    end
+
+    if not dock then return end
+    link.undock(dock.unit_number) --the docks must be disconnected to be modified like this. I shouldn't need to fully rebuild the dock, since structurally, it should still be the same.
+    connector_entity.linked_belt_type = opposite[connector_entity.linked_belt_type]
   end
 
   function docking.handle_destroy_event(event)
