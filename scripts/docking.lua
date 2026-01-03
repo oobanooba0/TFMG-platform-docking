@@ -153,7 +153,7 @@ local docking = {}
         if not docking_part[1] then break end --if the next shift doesnt have a connector on it, we break the loop.
 
         if docking_part[1].name == "TFMG-docking-port" then --conflict check, if we find another docking port while iterating, we disconnect all our docks to prevent ambiguous behaviour.
-          game.print("parental conflict detected, unlinking docking belts")
+          game.print("parental conflict detected, unlinking docking belts. Make sure you have only one docking core per dock")
           game.print(dock_storage.dock)
           game.print(docking_part[1])
           dock_storage.children = {positive = {},negative = {}}
@@ -301,7 +301,6 @@ local docking = {}
   function docking.belt_flip(event)
     local selected = event.selected_prototype
     if not selected or selected.name ~= "TFMG-docking-belt" then return end
-    game.print("selected the belt for rotation/flip")
     --this is the check from TFMG thermal core, that prevents futher code from running in instances where rotations would not be expected.
     local player = game.players[event.player_index]
     if not player.is_cursor_empty() then
