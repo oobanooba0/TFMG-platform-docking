@@ -2,7 +2,7 @@
 Version: 0.1.7
 Date: 2026-01-04
   Bugfixes:
-    - Fixed crash when not running with TFMG thermal. (im stoopid) 
+    - Fixed crash when not running with TFMG thermal. (im stoopid) (TFMG thermal added custom inputs to read rotate and flip events, and i forgot that if you dont have TFMG thermal, this mod needs to also add them, so that it can do the same)
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.6
 Date: 2026-01-03
