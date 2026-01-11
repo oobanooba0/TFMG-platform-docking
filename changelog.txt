@@ -3,6 +3,8 @@ Version: 0.1.8
 Date: 2026-01-11
   Changes:
     - Merged Russian locale
+  Bugfixes:
+    - Hopefully fixed a multiplayer crash when deleting a docking port when another player has its ui opened.
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.7
 Date: 2026-01-04
