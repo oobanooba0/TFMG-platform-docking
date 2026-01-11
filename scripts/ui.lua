@@ -162,8 +162,14 @@ local ui = {}
 
   function ui.update_ui(main_frame,player)
     --update the view panel
+    if not main_frame or not main_frame.valid then
+      storage.player_ui[player.index] = nil 
+    return end
     local dock_storage = storage.docking_ports[main_frame.tags["dock_id"]]
-    if not dock_storage then ui.find_parent_frame(main_frame).destroy() return end
+    if not dock_storage then
+       ui.find_parent_frame(main_frame).destroy() 
+       storage.player_ui[player.index] = nil 
+      return end
     local view_panel = main_frame["TFMG_dock_view_panel"]
     ui.set_view_panel_camera(view_panel,dock_storage,player)
   end
