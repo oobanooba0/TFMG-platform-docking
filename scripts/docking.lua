@@ -234,10 +234,10 @@ local docking = {}
     if entity.name == "TFMG-docking-belt" then --if docking belt we should check if we must flip it.
       belt_type = entity.linked_belt_type
       if belt_type then
-        game.print(belt_type)
+        --game.print(belt_type)
         if belt_type == "output" then
             direction = opposite[direction]
-            game.print("flip")
+            --game.print("flip")
         end
       end
     end

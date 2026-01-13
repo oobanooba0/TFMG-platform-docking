@@ -5,6 +5,8 @@ Date: ????
     - Improved graphics implemented, Provided by Talandar.
   Bugfixes:
     - Docking belt autoflip behaviour improved, now docks will fully refresh when flipped by belts. This still means they are breifly disconnected (as this is required to prevent a crash). But now should reconnect appropriately.
+    - Certain debug text no longer appears.
+    - Yes the docking belts placement collision is still wierd. The way linked belts work is really annoying. I want to belive i can figure out a better collision solution than what i have rn.
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.8
 Date: 2026-01-11
