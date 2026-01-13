@@ -53,7 +53,7 @@ local docking = {}
 --docking belt manager
 
   local function snap_dock_belt_direction(docking_part)
-    if docking_part.linked_belt_neighbour then 
+    if docking_part.linked_belt_neighbour then
       docking_part.disconnect_linked_belts()
     end
     local surface = docking_part.surface
@@ -68,6 +68,16 @@ local docking = {}
     elseif direction == opposite[belt_direction] then
       docking_part.linked_belt_type = "output"
     end
+
+    local position = docking_part.position
+    local dock
+    if docking_part.direction == 4 or docking_part.direction == 12 then --we need to know what axis to check.
+      dock = docking.find_parent("y",position,surface)
+    else
+      dock = docking.find_parent("x",position,surface)
+    end
+
+    link.refresh_dock_data(dock.unit_number) --refresh the dock so that shit will work or whatever
     --TFMG.block(docking_part)
   end
 
@@ -187,7 +197,7 @@ local docking = {}
     link.refresh_dock_data(dock.unit_number) --finally lets refesh the docks data
   end
 
-  local function find_parent(axis,position,surface)--find a docking port by iterating through adjacent dock entities.
+  function docking.find_parent(axis,position,surface)--find a docking port by iterating through adjacent dock entities.
     for i = 1,2 do
       for shift = 1,(max_dock_size*2) do --double the max dock size, since we could be starting from the outer edge of a dock
         local search_coordinate = search_shift(axis,position,i,shift)
@@ -206,9 +216,9 @@ local docking = {}
     local surface = connector.surface
     local dock
     if direction == 4 or direction == 12 then --we need to know what axis to check.
-      dock = find_parent("y",position,surface)
+      dock = docking.find_parent("y",position,surface)
     else
-      dock = find_parent("x",position,surface)
+      dock = docking.find_parent("x",position,surface)
     end
     if not dock then return end
     make_children(dock)
@@ -323,9 +333,9 @@ local docking = {}
     local position = connector_entity.position
 
     if direction == 4 or direction == 12 then --honestly, i should have baked this part into the find parent function. Fuck me
-      dock = find_parent("y",position,surface)
+      dock = docking.find_parent("y",position,surface)
     else
-      dock = find_parent("x",position,surface)
+      dock = docking.find_parent("x",position,surface)
     end
 
     if not dock then return end
