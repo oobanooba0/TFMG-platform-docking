@@ -1,7 +1,10 @@
 ---------------------------------------------------------------------------------------------------
-Version: 0.1.9
+Version: 0.2.0
 Date: ????
-  Changes:
+  Features:
+    - Improved graphics implemented, Provided by Talandar.
+  Bugfixes:
+    - Docking belt autoflip behaviour improved, now docks will fully refresh when flipped by belts. This still means they are breifly disconnected (as this is required to prevent a crash). But now should reconnect appropriately.
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.8
 Date: 2026-01-11
