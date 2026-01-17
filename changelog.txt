@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.2.1
+Date: 2026-01-17
+  Bugfixes:
+    - Fixed crash when building a belt next to a dock belt when the dock belt doesn't have a valid dock partent. (say that 3 times fast)
+---------------------------------------------------------------------------------------------------
 Version: 0.2.0
 Date: 2026-01-13
   Features:

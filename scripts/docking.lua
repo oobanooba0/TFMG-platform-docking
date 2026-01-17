@@ -77,8 +77,10 @@ local docking = {}
       dock = docking.find_parent("x",position,surface)
     end
 
-    link.refresh_dock_data(dock.unit_number) --refresh the dock so that shit will work or whatever
-    --TFMG.block(docking_part)
+    if dock then
+      link.refresh_dock_data(dock.unit_number) --refresh the dock so that shit will work or whatever
+      --TFMG.block(docking_part)
+    end
   end
 
   local function find_dock_normal_belt(belt)
