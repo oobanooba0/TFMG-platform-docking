@@ -1,6 +1,13 @@
 data:extend({
   {
     type = "bool-setting",
+    name = "TFMG-dock-enable-vanilla-p2p",
+    order = "A-A",
+    setting_type = "startup",
+    default_value = false,
+  },
+  {
+    type = "bool-setting",
     name = "TFMG-dock-preview-dynamic-zoom",
     order = "A-A",
     setting_type = "runtime-per-user",

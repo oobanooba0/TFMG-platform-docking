@@ -61,6 +61,25 @@ local function setup_gui_storage(event)
   if not storage.player_ui[player_index] then storage.player_ui[player_index] = {} end
 end
 
+local function setup_permission_groups()
+  local group = game.permissions.get_group("players")
+  if not group then group = game.permissions.create_group("players") end
+  if not group then return end
+  if settings.startup["TFMG-dock-enable-vanilla-p2p"].value then
+    group.set_allows_action(defines.input_action.providing_to_other_platforms, true)
+  else
+    group.set_allows_action(defines.input_action.providing_to_other_platforms, false)
+  end
+end
+
+local function join_permission_group(event)
+  local group = game.permissions.get_group("players")
+  local player = game.players[event.player_index]
+  if group then
+    group.add_player(player)
+  end
+end
+
 local build_event_filter = {--what entities the on build events should check for.
   {
   	filter = "name",
@@ -93,15 +112,18 @@ local build_event_filter = {--what entities the on build events should check for
 
 script.on_init(function()
   setup_storage()
+  setup_permission_groups()
 end)
 
 script.on_configuration_changed(function()
   setup_storage()
+  setup_permission_groups()
 end)
 
 script.on_event(defines.events.on_player_created,
   function(event)
     setup_gui_storage(event)
+    join_permission_group(event)
   end
 )
 

@@ -222,13 +222,14 @@ local docking = {}
     local position = connector.position
     local surface = connector.surface
     local dock
-    if direction == 4 or direction == 12 then --we need to know what axis to check.
-      dock = docking.find_parent("y",position,surface)
-    elseif direction == 0 then -- not rotatable entities, check both axes
+
+    if connector.type == "radar" then
       dock = docking.find_parent("x",position,surface)
-      if not dock then 
-        dock = docking.find_parent("y",position,surface) 
+      if not dock then
+        dock = docking.find_parent("y",position,surface)
       end
+    elseif direction == 4 or direction == 12 then --we need to know what axis to check.
+      dock = docking.find_parent("y",position,surface)
     else
       dock = docking.find_parent("x",position,surface)
     end

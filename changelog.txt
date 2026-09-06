@@ -1,6 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.5.2
+Date: 2026-09-06
+  Features:
+    - Docking radar added thanks to GoatsWithPants
+    - Docking radar allows for platform to platform signal transmission, which is useful for more complex platform docking setups. This is real shit.
+    - Platform docking will ban the use of vanilla p2p by default (can be disabled in startup settings)
+---------------------------------------------------------------------------------------------------
 Version: 0.5.0
-Date: ???
+Date: 2026-09-02
   Features:
     - Support for factorio 2.1 added
     - Clicking on the little camera window takes you to the cameras location. So cool!
