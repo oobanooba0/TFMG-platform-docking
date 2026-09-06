@@ -1,6 +1,6 @@
 local math2d = require("__core__/lualib/math2d")
 
-local dock_parts_filter = {"TFMG-docking-port","TFMG-docking-belt","TFMG-docking-pipe"}
+local dock_parts_filter = {"TFMG-docking-port","TFMG-docking-belt","TFMG-docking-pipe","TFMG-docking-radar"}
 local dock_belts_filter = {"TFMG-docking-belt"}
 local dock_pipes_filter = {"TFMG-docking-pipe"}
 local max_dock_size = 1000
@@ -224,6 +224,11 @@ local docking = {}
     local dock
     if direction == 4 or direction == 12 then --we need to know what axis to check.
       dock = docking.find_parent("y",position,surface)
+    elseif direction == 0 then -- not rotatable entities, check both axes
+      dock = docking.find_parent("x",position,surface)
+      if not dock then 
+        dock = docking.find_parent("y",position,surface) 
+      end
     else
       dock = docking.find_parent("x",position,surface)
     end
@@ -247,6 +252,8 @@ local docking = {}
             --game.print("flip")
         end
       end
+    elseif entity.name == "TFMG-docking-pipe" then -- I don't know why docking pipe needs to be flipped, but when placed, collision detection gets reversed. Very strange, flipping it here fixes it (mostly?)
+      direction = opposite[direction]
     end
     script.register_on_object_destroyed(entity)
     local collider = surface.create_entity{
@@ -297,15 +304,26 @@ local docking = {}
   end
 
 
+  local function on_docking_radar_created(event)
+    local connector = event.entity
+    connector.rotatable = false
+    connector.operable = false  -- don't want player to access gui of radar
+    connector.disabled_by_script = true -- disable on build, gets enabled on link and disabled on unlink 
+    make_parent(connector)   
+
+  end
+
 
 --callable functions
-  function docking.handle_build_event(event) --call me yandredev
+  function docking.handle_build_event(event)
     if event.entity.name == "TFMG-docking-port" then
       on_docking_port_created(event)
     elseif event.entity.name == "TFMG-docking-belt" then
       on_docking_belt_created(event)
     elseif event.entity.name == "TFMG-docking-pipe" then
       on_docking_pipe_created(event)
+    elseif event.entity.name == "TFMG-docking-radar" then   
+      on_docking_radar_created(event)
     else
       find_dock_belt(event.entity)
     end
